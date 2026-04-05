@@ -28,10 +28,15 @@ public final class ChatWindowsCommands {
                                                     try {
                                                         String id = StringArgumentType.getString(ctx, "id");
                                                         String pattern = StringArgumentType.getString(ctx, "pattern");
+                                                        if (mgr.hasWindow(id)) {
+                                                            ctx.getSource()
+                                                                    .sendError(Component.literal(
+                                                                            "A chat window '" + id + "' already exists. Remove it first or use add-pattern."));
+                                                            return 0;
+                                                        }
                                                         try {
-                                                            boolean replaced = mgr.createWindow(id, pattern);
-                                                            ctx.getSource().sendFeedback(Component.literal(
-                                                                    replaced ? "Updated chat window '" + id + "'" : "Created chat window '" + id + "'"));
+                                                            mgr.createWindow(id, pattern);
+                                                            ctx.getSource().sendFeedback(Component.literal("Created chat window '" + id + "'"));
                                                             ctx.getSource().sendFeedback(Component.literal(
                                                                     "Match text: type it literally (+ . * etc. are not special). For a Java regex, use regex: e.g. regex:.*join.*"));
                                                         } catch (PatternSyntaxException e) {

@@ -1,10 +1,6 @@
 package me.braydon.window;
 
-import me.braydon.window.chat.ChatWindowManager;
-import me.braydon.window.chat.ChatWindowsCommands;
-import me.braydon.window.chat.ChatWindowsHud;
-import me.braydon.window.chat.ChatWindowsScreenHooks;
-import me.braydon.window.chat.ChatWindowsTick;
+import me.braydon.window.chat.*;
 import net.fabricmc.api.ClientModInitializer;
 
 public class ChatWindowsModClient implements ClientModInitializer {

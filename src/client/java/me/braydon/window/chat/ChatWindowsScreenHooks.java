@@ -34,7 +34,6 @@ public final class ChatWindowsScreenHooks {
         }
         Minecraft mc = Minecraft.getInstance();
         int gw = mc.getWindow().getGuiScaledWidth();
-        int gh = mc.getWindow().getGuiScaledHeight();
         int mx = (int) mouseX;
         int my = (int) mouseY;
 
@@ -45,7 +44,7 @@ public final class ChatWindowsScreenHooks {
             if (!w.isVisible() || w.getLines().isEmpty()) {
                 continue;
             }
-            if (!ChatWindowGeometry.historyHitTest(w, gw, gh, mx, my)) {
+            if (!ChatWindowGeometry.historyHitTest(w, mc, gw, mx, my)) {
                 continue;
             }
             int[] m = ChatWindowGeometry.historyScrollMetrics(w, mc, gw);

@@ -1,6 +1,7 @@
 package me.braydon.window.chat;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -98,7 +99,7 @@ public final class ChatWindowGeometry {
         this.contentStartYOffset = contentStartYOffset;
     }
 
-    /** Positioning / resize: no fade, no history focus. */
+    /** Positioning / resize: no fade, no chat-screen expansion. */
     public static ChatWindowGeometry compute(ChatWindow window, Minecraft mc, int gw, int gh, String placeholderWhenNoLine) {
         return compute(
                 window,
@@ -109,14 +110,14 @@ public final class ChatWindowGeometry {
                 mc.gui.getGuiTicks(),
                 true,
                 false,
-                false,
                 0,
                 0);
     }
 
     /**
      * @param forceOpaque ignore fade (positioning mode)
-     * @param historyFocus chat screen open and cursor over this window's history viewport
+     * @param chatScreenOpen when {@link ChatScreen} is open, show full stored history in a viewport of {@link ChatWindow#getMaxVisibleLines()}
+     *     rows (same height as in position mode); scroll with the wheel over the window
      */
     public static ChatWindowGeometry compute(
             ChatWindow window,
@@ -126,25 +127,21 @@ public final class ChatWindowGeometry {
             String placeholderWhenNoLine,
             int guiTick,
             boolean forceOpaque,
-            boolean historyFocus,
             boolean chatScreenOpen,
             int mouseGuiX,
             int mouseGuiY) {
         int maxLineWidth = Math.max(24, Math.round(window.getWidthFrac() * gw) - PADDING * 2);
         int msgCap = window.getMaxVisibleLines();
-        int viewportRows = window.getMaxVisibleLines();
 
-        boolean useHistory =
-                !forceOpaque
-                        && historyFocus
-                        && chatScreenOpen
-                        && !window.getLines().isEmpty();
+        boolean useChatHistory =
+                !forceOpaque && chatScreenOpen && mc.screen instanceof ChatScreen && !window.getLines().isEmpty();
 
         List<RenderedRow> rows = new ArrayList<>();
         int maxHistoryScroll = 0;
         int contentStartYOffset = 0;
+        int viewportRows = window.getMaxVisibleLines();
 
-        if (useHistory) {
+        if (useChatHistory) {
             List<RenderedRow> allHistory = new ArrayList<>();
             for (ChatWindowLine line : window.getLines()) {
                 for (FormattedCharSequence row : mc.font.split(line.styled(), maxLineWidth)) {
@@ -185,7 +182,7 @@ public final class ChatWindowGeometry {
         for (RenderedRow rr : rows) {
             maxRowW = Math.max(maxRowW, mc.font.width(rr.text));
         }
-        if (useHistory) {
+        if (useChatHistory) {
             for (ChatWindowLine line : window.getLines()) {
                 for (FormattedCharSequence row : mc.font.split(line.styled(), maxLineWidth)) {
                     maxRowW = Math.max(maxRowW, mc.font.width(row));
@@ -198,7 +195,7 @@ public final class ChatWindowGeometry {
 
         int lineCount;
         int boxH;
-        if (useHistory) {
+        if (useChatHistory) {
             lineCount = viewportRows;
             boxH = lineCount * LINE_HEIGHT + PADDING * 2;
         } else {
@@ -217,7 +214,7 @@ public final class ChatWindowGeometry {
         int x = Math.min(Math.max(0, anchorXGui), Math.max(0, gw - boxW));
         int y = Math.min(Math.max(0, anchorYGui - boxH), Math.max(0, gh - boxH));
 
-        if (!useHistory && forceOpaque && lineCount > rows.size()) {
+        if (!useChatHistory && forceOpaque && lineCount > rows.size()) {
             contentStartYOffset = (lineCount - rows.size()) * LINE_HEIGHT;
         }
 
@@ -226,14 +223,18 @@ public final class ChatWindowGeometry {
     }
 
     /**
-     * Fixed viewport used for “open chat + hover” hit-testing, even when the HUD has no visible
-     * lines (all faded).
+     * Hit-test for scroll wheel on {@link ChatScreen}: same box size as {@link #compute} when chat is open
+     * ({@link ChatWindow#getMaxVisibleLines()} rows tall).
      */
-    public static boolean historyHitTest(ChatWindow window, int gw, int gh, int mouseGuiX, int mouseGuiY) {
+    public static boolean historyHitTest(ChatWindow window, Minecraft mc, int gw, int mouseGuiX, int mouseGuiY) {
+        if (!(mc.screen instanceof ChatScreen) || window.getLines().isEmpty()) {
+            return false;
+        }
         int viewportRows = window.getMaxVisibleLines();
         int boxH = viewportRows * LINE_HEIGHT + PADDING * 2;
         int boxW = Math.min(gw, Math.round(window.getWidthFrac() * gw));
         int anchorXGui = Math.round(window.getAnchorX() * gw);
+        int gh = mc.getWindow().getGuiScaledHeight();
         int anchorYGui = Math.round(window.getAnchorY() * gh);
         int x = Math.min(Math.max(0, anchorXGui), Math.max(0, gw - boxW));
         int y = Math.min(Math.max(0, anchorYGui - boxH), Math.max(0, gh - boxH));
@@ -243,24 +244,22 @@ public final class ChatWindowGeometry {
                 && mouseGuiY < y + boxH;
     }
 
-    /** Total wrapped rows and viewport size for scroll handling on the chat screen. */
+    /** Total wrapped rows and viewport row count ({@link ChatWindow#getMaxVisibleLines()}) for chat-screen scroll. */
     public static int[] historyScrollMetrics(ChatWindow window, Minecraft mc, int gw) {
         int maxLineWidth = Math.max(24, Math.round(window.getWidthFrac() * gw) - PADDING * 2);
+        int total = countWrappedRows(window, mc, maxLineWidth);
         int viewportRows = window.getMaxVisibleLines();
-        int total = 0;
+        return new int[] {total, viewportRows};
+    }
+
+    private static int countWrappedRows(ChatWindow window, Minecraft mc, int maxLineWidth) {
+        int n = 0;
         for (ChatWindowLine line : window.getLines()) {
-            int w = mc.font.width(line.styled());
-            if (w <= maxLineWidth) {
-                total += 1;
-            } else {
-                int lines = 0;
-                for (FormattedCharSequence ignored : mc.font.split(line.styled(), maxLineWidth)) {
-                    lines++;
-                }
-                total += lines;
+            for (FormattedCharSequence ignored : mc.font.split(line.styled(), maxLineWidth)) {
+                n++;
             }
         }
-        return new int[] {total, viewportRows};
+        return n;
     }
 
     private static List<ChatWindowLine> takeLast(Iterable<ChatWindowLine> lines, int n) {

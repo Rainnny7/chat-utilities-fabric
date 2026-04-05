@@ -16,13 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -56,11 +50,17 @@ public final class ChatWindowManager {
         load();
     }
 
+    /**
+     * @return {@code false} if a window with this id already exists (no changes made)
+     */
     public boolean createWindow(String id, String patternInput) throws PatternSyntaxException {
+        if (windows.containsKey(id)) {
+            return false;
+        }
         Pattern p = compileUserMatchPattern(patternInput);
-        ChatWindow existing = windows.put(id, new ChatWindow(id, p, patternInput.strip()));
+        windows.put(id, new ChatWindow(id, p, patternInput.strip()));
         save();
-        return existing != null;
+        return true;
     }
 
     public boolean addPattern(String id, String patternInput) throws PatternSyntaxException {

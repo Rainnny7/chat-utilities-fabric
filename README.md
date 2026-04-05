@@ -49,7 +49,7 @@ is stored with a `regex:` prefix when you save).
 
 | Command                                      | Description                                                       |
 |----------------------------------------------|-------------------------------------------------------------------|
-| `/chatwindow create <id> <pattern>`          | Create a window (replace if `id` already exists).                 |
+| `/chatwindow create <id> <pattern>`          | Create a window (error if `id` already exists).                   |
 | `/chatwindow add-pattern <id> <pattern>`     | Add another pattern to a window.                                  |
 | `/chatwindow list-patterns <id>`             | List patterns for a window.                                       |
 | `/chatwindow remove-pattern <id> <position>` | Remove pattern by 1-based index (cannot remove the last pattern). |

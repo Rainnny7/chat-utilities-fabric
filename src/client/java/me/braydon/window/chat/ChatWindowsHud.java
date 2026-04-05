@@ -43,9 +43,6 @@ public final class ChatWindowsHud {
                 placeholder = window.isPositioningMode() ? "[empty]" : "(no matching chat yet)";
             }
 
-            boolean historyFocus =
-                    chatOpen && hasStored && ChatWindowGeometry.historyHitTest(window, gw, gh, mx, my);
-
             ChatWindowGeometry geo =
                     ChatWindowGeometry.compute(
                             window,
@@ -55,7 +52,6 @@ public final class ChatWindowsHud {
                             placeholder,
                             guiTick,
                             window.isPositioningMode(),
-                            historyFocus,
                             chatOpen,
                             mx,
                             my);
@@ -64,7 +60,7 @@ public final class ChatWindowsHud {
                 continue;
             }
 
-            if (hasStored && geo.rows.isEmpty() && !historyFocus && !window.isPositioningMode()) {
+            if (hasStored && geo.rows.isEmpty() && !chatOpen && !window.isPositioningMode()) {
                 continue;
             }
 
@@ -80,6 +76,7 @@ public final class ChatWindowsHud {
             if (hasStored) {
                 graphics.fill(x, y, x + boxW, y + boxH, 0x80000000);
                 renderStyledRows(graphics, geo, x, y, boxW, boxH, chatOpacity);
+                ChatWindowScrollbar.render(graphics, mc, window, geo, chatOpacity, chatOpen);
             } else if (window.isPositioningMode()) {
                 graphics.fill(x, y, x + boxW, y + boxH, 0x80000000);
                 renderPlaceholderRows(graphics, mc, geo, x, y, boxW, boxH, 0xAAAAAA, chatOpacity);

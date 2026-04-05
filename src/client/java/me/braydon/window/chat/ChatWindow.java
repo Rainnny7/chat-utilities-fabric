@@ -1,10 +1,6 @@
 package me.braydon.window.chat;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public final class ChatWindow {
