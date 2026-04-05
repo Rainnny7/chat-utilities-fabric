@@ -3,7 +3,7 @@
 A [Fabric](https://fabricmc.net/) client mod that filters matching chat into extra HUD panes you can move and resize.
 Patterns use plain text by default; prefix with `regex:` when you want a full Java regular expression.
 
-![Demo: moving and resizing chat windows](https://github.com/Rainnny7/chat-windows/tree/master/.github/media/creation.mp4)
+![Demo: moving and resizing chat windows](https://youtu.be/lMcVxxYGzR0)
 
 ## Background
 
