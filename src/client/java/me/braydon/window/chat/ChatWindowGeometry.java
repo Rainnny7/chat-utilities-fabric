@@ -100,7 +100,7 @@ public final class ChatWindowGeometry {
     }
 
     /** Positioning / resize: no fade, no chat-screen expansion. */
-    public static ChatWindowGeometry compute(ChatWindow window, Minecraft mc, int gw, int gh, String placeholderWhenNoLine) {
+    public static ChatWindowGeometry compute(ChatWindow window, Minecraft mc, int gw, int gh, Component placeholderWhenNoLine) {
         return compute(
                 window,
                 mc,
@@ -124,7 +124,7 @@ public final class ChatWindowGeometry {
             Minecraft mc,
             int gw,
             int gh,
-            String placeholderWhenNoLine,
+            Component placeholderWhenNoLine,
             int guiTick,
             boolean forceOpaque,
             boolean chatScreenOpen,
@@ -173,7 +173,7 @@ public final class ChatWindowGeometry {
         }
 
         if (rows.isEmpty() && placeholderWhenNoLine != null) {
-            for (FormattedCharSequence row : mc.font.split(Component.literal(placeholderWhenNoLine), maxLineWidth)) {
+            for (FormattedCharSequence row : mc.font.split(placeholderWhenNoLine, maxLineWidth)) {
                 rows.add(new RenderedRow(row, 1f));
             }
         }

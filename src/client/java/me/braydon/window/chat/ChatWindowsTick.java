@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 
@@ -102,7 +103,7 @@ public final class ChatWindowsTick {
 
         boolean down = GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
 
-        String ph = positioned.getLines().isEmpty() ? "[empty]" : null;
+        Component ph = positioned.getLines().isEmpty() ? Component.literal("[empty]") : null;
         ChatWindowGeometry geo = ChatWindowGeometry.compute(positioned, mc, gw, gh, ph);
 
         if (down) {

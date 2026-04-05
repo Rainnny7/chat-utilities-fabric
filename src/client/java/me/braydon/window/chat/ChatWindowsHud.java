@@ -8,6 +8,8 @@ import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 public final class ChatWindowsHud {
@@ -38,9 +40,18 @@ public final class ChatWindowsHud {
             }
 
             boolean hasStored = !window.getLines().isEmpty();
-            String placeholder = null;
+            // Filter windows with no lines: only show the hint while chat is open (T).
+            if (!hasStored && !window.isPositioningMode() && !chatOpen) {
+                continue;
+            }
+
+            Component placeholder = null;
             if (!hasStored) {
-                placeholder = window.isPositioningMode() ? "[empty]" : "(no matching chat yet)";
+                placeholder =
+                        window.isPositioningMode()
+                                ? Component.literal("[empty]")
+                                : Component.literal("No matching chat yet")
+                                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
             }
 
             ChatWindowGeometry geo =
@@ -81,8 +92,9 @@ public final class ChatWindowsHud {
                 graphics.fill(x, y, x + boxW, y + boxH, 0x80000000);
                 renderPlaceholderRows(graphics, mc, geo, x, y, boxW, boxH, 0xAAAAAA, chatOpacity);
             } else {
-                graphics.fill(x, y, x + boxW, y + boxH, 0x50000000);
-                renderPlaceholderRows(graphics, mc, geo, x, y, boxW, boxH, 0x888888, chatOpacity);
+                // Empty filter window (chat open): same panel + text path as real chat lines.
+                graphics.fill(x, y, x + boxW, y + boxH, 0x80000000);
+                renderStyledRows(graphics, geo, x, y, boxW, boxH, chatOpacity);
             }
         }
     }
