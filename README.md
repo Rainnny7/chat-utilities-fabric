@@ -2,6 +2,8 @@
 
 A [Fabric](https://fabricmc.net/) client mod that upgrades your chat into a configurable toolkit: **chat windows with tabs**, a **GUI settings menu**, **chat search**, **click-to-copy**, **image link previews**, **timestamps**, and more.
 
+> **Note:** This project was created entirely with AI. The goal was to build a Chat Utilities mod that did not previously exist with the feature set I wanted. This was created as a functional project/tool rather than a showcase of programming skills, development experience, or a professional portfolio piece.
+
 [View a demo on YouTube](https://youtu.be/lMcVxxYGzR0)
 
 ## Key features
